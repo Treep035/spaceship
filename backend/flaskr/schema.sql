@@ -1,0 +1,26 @@
+DROP TABLE IF EXISTS player;
+CREATE TABLE player (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL UNIQUE,
+    password TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+DROP TABLE IF EXISTS progress;
+CREATE TABLE progress (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    player_id INTEGER NOT NULL,
+    progress_data TEXT NOT NULL,  -- JSON string containing level and other state info
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(player_id) REFERENCES player(id) ON DELETE CASCADE
+);
+
+DROP TABLE IF EXISTS score;
+CREATE TABLE score (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    player_id INTEGER NOT NULL,
+    points INTEGER NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY(player_id) REFERENCES player(id) ON DELETE CASCADE
+);
+
