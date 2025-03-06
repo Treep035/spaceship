@@ -39,11 +39,10 @@ class LoginWindow(QWidget):
         self.setLayout(layout)
 
     def validate_login(self):
-        username = self.username_input.text()
-        password = self.password_input.text()
+        logged_in = validate_login_backend(self.username_input.text(), self.password_input.text())
         
         # Aquí puedes validar el usuario y la contraseña
-        if username == "usuario" and password == "contraseña":
+        if logged_in:
             self.show_message("¡Bienvenido!")
             self.start_game()
         else:
