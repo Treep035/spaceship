@@ -19,10 +19,18 @@ BLUE  = (0, 0, 255)
 pygame.init()
 pygame.mixer.init()
 
+pygame.mixer.music.load("resources/sounds/main.mp3")  # Cambia la ruta si es necesario
+pygame.mixer.music.set_volume(0.5)  # Ajusta el volumen de la música (0.0 a 1.0)
+pygame.mixer.music.play(-1, 0.0)
+
+EXPLOSION_IMAGE = pygame.image.load("resources/images/explode.png")  # Asegúrate de que esta imagen esté en la carpeta
+EXPLOSION_IMAGE = pygame.transform.scale(EXPLOSION_IMAGE, (50, 50))
+
 SHOOT_SOUND = pygame.mixer.Sound("resources/sounds/shoot.mp3")
+EXPLODE_SOUND = pygame.mixer.Sound("resources/sounds/explode.mp3")
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Joc Extensible - Ampliació 4: Menú, Reinici i Disparar")
+pygame.display.set_caption("SpaceShip Game")
 clock = pygame.time.Clock()
 font = pygame.font.SysFont("Arial", 24)
 
@@ -53,7 +61,7 @@ class Player(pygame.sprite.Sprite):
     """Classe per al jugador."""
     def __init__(self):
         super().__init__()
-        self.image = pygame.image.load("resources/images/spaceship.png")  # Cambia "jugador_imagen.png" por el nombre de tu archivo de imagen
+        self.image = pygame.image.load("resources/images/spaceship.png")  # Imagen original de la nave
         self.image = pygame.transform.scale(self.image, (50, 50))  # Ajusta el tamaño si es necesario
         self.rect = self.image.get_rect()
         self.rect.center = (100, HEIGHT // 2)
@@ -80,6 +88,12 @@ class Player(pygame.sprite.Sprite):
             self.rect.top = 0
         if self.rect.bottom > HEIGHT:
             self.rect.bottom = HEIGHT
+
+    def trigger_explosion(self):
+        """Crear la explosió a la posició de la nau."""
+        explosion = Explosion(self.rect.center)  # Posicionar la explosión en el centro de la nave
+        all_sprites.add(explosion)  # Añadir la explosión al grupo de sprites
+
 
 class Obstacle(pygame.sprite.Sprite):
     """Classe per als obstacles."""
@@ -117,6 +131,20 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.x += self.speed
         if self.rect.left > WIDTH:
             self.kill()
+
+class Explosion(pygame.sprite.Sprite):
+    """Classe per a la explosió.""" 
+    def __init__(self, pos):
+        super().__init__()
+        self.image = EXPLOSION_IMAGE  # Imagen de la explosión
+        self.rect = self.image.get_rect(center=pos)  # Centrar la explosión en la posición
+        self.time_created = pygame.time.get_ticks()  # Almacenamos el tiempo de creación
+
+    def update(self):
+        """Destruir la explosión después de 0.5 segundos."""
+        if pygame.time.get_ticks() - self.time_created > 500:  # 500 ms = 0.5 segundos
+            self.kill()  # Eliminar la explosión del grupo de sprites
+
 
 # ========================
 # Funció per reinicialitzar el Joc
@@ -156,17 +184,44 @@ def show_menu():
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.KEYDOWN:
-                waiting = False
+                if event.key == pygame.K_SPACE:  # Solo iniciar el juego si se presiona SPACE
+                    waiting = False
 
         # Dibuixar el fondo
         screen.blit(background, (0, 0))  # Dibuja el fondo en la pantalla
 
         # Dibuixar el text del menú
-        draw_text(screen, "Joc Extensible", font, WHITE, 300, 200)
-        draw_text(screen, "Prem qualsevol tecla per començar", font, WHITE, 220, 250)
+        draw_text(screen, "SpaceShip", font, WHITE, 300, 200)
+        draw_text(screen, "Press SPACE to start", font, WHITE, 220, 250)
         
         pygame.display.flip()
 
+# Variable para gestionar la pausa
+paused = False
+
+# ========================
+# Funció per mostrar la pantalla de Pausa
+# ========================
+def show_pause():
+    """Mostra la pantalla de pausa fins que el jugador premi l'ESCAPE."""
+    background = pygame.Surface((WIDTH, HEIGHT))
+    background.fill(WHITE)  # Fondo blanco
+
+    draw_text(screen, "PAUSA", font, WHITE, WIDTH // 2 - 60, HEIGHT // 2 - 30)
+    draw_text(screen, "Press ESC to continue", font, WHITE, WIDTH // 2 - 130, HEIGHT // 2 + 10)
+    pygame.display.flip()
+
+    # Esperar que el jugador presione ESCAPE para continuar
+    waiting = True
+    while waiting:
+        clock.tick(FPS)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    waiting = False
 
 # ========================
 # Funció per executar la partida
@@ -178,6 +233,7 @@ def game_loop():
     new_game()
     game_state = "playing"
     running = True
+    paused = False  # Variable para controlar la pausa
 
     background = pygame.image.load("resources/images/background.jpg")  # Cambia la ruta si es necesario
     background = pygame.transform.scale(background, (WIDTH, HEIGHT))
@@ -193,13 +249,22 @@ def game_loop():
                 all_sprites.add(obstacle)
                 obstacles.add(obstacle)
             elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
+                if event.key == pygame.K_ESCAPE:
+                    paused = not paused  # Alterna el estado de pausa
+                if event.key == pygame.K_SPACE and not paused:
                     # Crear i afegir un projectil a partir de la posició del jugador
                     bullet = Bullet(player.rect.center)
                     all_sprites.add(bullet)
                     bullets.add(bullet)
-
                     SHOOT_SOUND.play()
+
+        # Si el juego está en pausa, mostrar la pantalla de pausa y no actualizar nada más
+        if paused:
+            draw_text(screen, "PAUSE", font, WHITE, WIDTH // 2 - 60, HEIGHT // 2 - 30)
+            draw_text(screen, "Press ESC to continue", font, WHITE, WIDTH // 2 - 130, HEIGHT // 2 + 10)
+            pygame.display.flip()
+            continue
+
         # Incrementar la dificultat cada 15 segons
         current_time = pygame.time.get_ticks()
         if current_time - last_difficulty_update_time >= 15000:
@@ -207,6 +272,7 @@ def game_loop():
             last_difficulty_update_time = current_time
             spawn_interval = max(500, 1500 - difficulty_level * 100)
             pygame.time.set_timer(ADD_OBSTACLE, spawn_interval)
+
         # Actualitzar els sprites
         all_sprites.update()
 
@@ -218,6 +284,8 @@ def game_loop():
         # Comprovar col·lisions entre el jugador i els obstacles
         if pygame.sprite.spritecollideany(player, obstacles):
             lives -= 1
+            EXPLODE_SOUND.play()
+            player.trigger_explosion()  # Crear l'explosió en la posició de la nau
             if lives > 0:
                 # Reinicialitzar la posició del jugador i esborrar els obstacles
                 player.rect.center = (100, HEIGHT // 2)
@@ -225,17 +293,19 @@ def game_loop():
                     obs.kill()
             else:
                 game_state = "game_over"
+
         # Dibuixar la escena
         screen.blit(background, (0, 0))
         all_sprites.draw(screen)
-        score_text = font.render("Puntuació: " + str(score), True, WHITE)
-        difficulty_text = font.render("Dificultat: " + str(difficulty_level), True, WHITE)
-        lives_text = font.render("Vides: " + str(lives), True, WHITE)
+        score_text = font.render("Punctuation: " + str(score), True, WHITE)
+        difficulty_text = font.render("Difficulty: " + str(difficulty_level), True, WHITE)
+        lives_text = font.render("Lives: " + str(lives), True, WHITE)
         screen.blit(score_text, (10, 10))
         screen.blit(difficulty_text, (10, 40))
         screen.blit(lives_text, (10, 70))
         pygame.display.flip()
     return score
+
 
 # ========================
 # Funció per mostrar la pantalla de Game Over
