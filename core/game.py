@@ -191,8 +191,10 @@ def show_menu():
         screen.blit(background, (0, 0))  # Dibuja el fondo en la pantalla
 
         # Dibuixar el text del menú
-        draw_text(screen, "SpaceShip", font, WHITE, 300, 200)
-        draw_text(screen, "Press SPACE to start", font, WHITE, 220, 250)
+        draw_text(screen, "SpaceShip", font, WHITE, 325, 200)
+        draw_text(screen, "Press", font, WHITE, 270, 250)
+        draw_text(screen, "SPACE", font, RED, 345, 250)
+        draw_text(screen, "to start", font, WHITE, 440, 250)
         
         pygame.display.flip()
 
