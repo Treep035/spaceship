@@ -17,6 +17,10 @@ BLUE  = (0, 0, 255)
 
 # Inicialitzar Pygame i la finestra
 pygame.init()
+pygame.mixer.init()
+
+SHOOT_SOUND = pygame.mixer.Sound("resources/sounds/shoot.mp3")
+
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Joc Extensible - Ampliació 4: Menú, Reinici i Disparar")
 clock = pygame.time.Clock()
@@ -194,6 +198,8 @@ def game_loop():
                     bullet = Bullet(player.rect.center)
                     all_sprites.add(bullet)
                     bullets.add(bullet)
+
+                    SHOOT_SOUND.play()
         # Incrementar la dificultat cada 15 segons
         current_time = pygame.time.get_ticks()
         if current_time - last_difficulty_update_time >= 15000:
