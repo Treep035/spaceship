@@ -2,10 +2,11 @@
 
 ## Desenvolupadors
 
-- Marco Fernández
-- Joaquin Guzmán
+- [Marco Fernández](https://github.com/Treep035)
+- [Joaquin Guzmán](https://github.com/joacoguzmanz)
 
-[Enllaç a la demostració del joc](https://www.loom.com/share/9167af033edd4d52ac262dc66fbe676a?sid=03845b49-ab7e-420b-a675-03683feb1a63)
+### Demo
+- [Enllaç a la demostració del joc](https://www.loom.com/share/9167af033edd4d52ac262dc66fbe676a?sid=03845b49-ab7e-420b-a675-03683feb1a63)
 
 ---
 
