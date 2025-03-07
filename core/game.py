@@ -359,7 +359,7 @@ def show_game_over(final_score):
         screen.blit(background, (0, 0))
         draw_text(screen, "Game Over!", font, RED, 350, 200)
         draw_text(screen, "Final score: " + str(final_score) + " points", font, WHITE, 320, 250)
-        draw_text(screen, "High score: " + str(final_score) + " points", font, WHITE, 320, 280)
+        draw_text(screen, "High score: " + str(high_score) + " points", font, WHITE, 320, 280)
         draw_text(screen, "Press any key to restart", font, WHITE, 300, 300)
         pygame.display.flip()
 
