@@ -326,9 +326,12 @@ def game_loop():
         score_text = font.render("Punctuation: " + str(score), True, WHITE)
         difficulty_text = font.render("Difficulty: " + str(difficulty_level), True, WHITE)
         lives_text = font.render("Lives: " + str(lives), True, WHITE)
+        high_score_text = font.render("High Score: " + str(high_score), True, WHITE)
+        h_s_rect = high_score_text.get_rect(topright=(WIDTH - 10, 10))
         screen.blit(score_text, (10, 10))
         screen.blit(difficulty_text, (10, 40))
         screen.blit(lives_text, (10, 70))
+        screen.blit(high_score_text, h_s_rect)
         pygame.display.flip()
     return score
 
