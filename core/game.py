@@ -45,6 +45,22 @@ spawn_interval = 1500
 ADD_OBSTACLE = pygame.USEREVENT + 1
 
 # ========================
+# High Score Functions
+# ========================
+def load_high_score():
+    try:
+        with open("highscore.txt", "r") as f:
+            return int(f.read().strip())
+    except:
+        return 0
+
+def save_high_score(score_value):
+    with open("highscore.txt", "w") as f:
+        f.write(str(score_value))
+
+high_score = load_high_score()
+
+# ========================
 # Funcions Auxiliars
 # ========================
 
@@ -133,7 +149,7 @@ class Bullet(pygame.sprite.Sprite):
             self.kill()
 
 class Explosion(pygame.sprite.Sprite):
-    """Classe per a la explosió.""" 
+    """Classe per a la explosió."""
     def __init__(self, pos):
         super().__init__()
         self.image = EXPLOSION_IMAGE  # Imagen de la explosión
@@ -195,7 +211,15 @@ def show_menu():
         draw_text(screen, "Press", font, WHITE, 270, 250)
         draw_text(screen, "SPACE", font, RED, 345, 250)
         draw_text(screen, "to start", font, WHITE, 440, 250)
-        
+
+        draw_text(screen, "TO MOVE USE", font, WHITE, 100, 300)
+        draw_text(screen, "TO PAUSE", font, WHITE, 350, 300)
+        draw_text(screen, "TO SHOOT", font, WHITE, 600, 300)
+        draw_text(screen, "   W", font, WHITE, 100, 330)
+        draw_text(screen, "        ESC", font, WHITE, 350, 330)
+        draw_text(screen, "      SPACE", font, WHITE, 600, 330)
+        draw_text(screen, "A   S   D", font, WHITE, 100, 360)
+
         pygame.display.flip()
 
 # Variable para gestionar la pausa
@@ -315,9 +339,14 @@ def game_loop():
 
 def show_game_over(final_score):
     """Mostra la pantalla de Game Over amb la puntuació final i espera per reiniciar."""
+    global high_score
+    if final_score > high_score:
+        high_score = final_score
+        save_high_score(high_score)
+
     background = pygame.image.load("resources/images/background.jpg")  # Cambia la ruta si es necesario
     background = pygame.transform.scale(background, (WIDTH, HEIGHT))
-    
+
     waiting = True
     while waiting:
         clock.tick(FPS)
@@ -329,8 +358,9 @@ def show_game_over(final_score):
                 waiting = False
         screen.blit(background, (0, 0))
         draw_text(screen, "Game Over!", font, RED, 350, 200)
-        draw_text(screen, "Puntuació Final: " + str(final_score), font, BLACK, 320, 250)
-        draw_text(screen, "Prem qualsevol tecla per reiniciar", font, BLACK, 250, 300)
+        draw_text(screen, "Final score: " + str(final_score) + " points", font, WHITE, 320, 250)
+        draw_text(screen, "High score: " + str(final_score) + " points", font, WHITE, 320, 280)
+        draw_text(screen, "Press any key to restart", font, WHITE, 300, 300)
         pygame.display.flip()
 
 # ========================
